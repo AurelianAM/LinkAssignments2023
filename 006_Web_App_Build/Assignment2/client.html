@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student</title>
+    <style>
+
+        html {
+        /* Base styles go here */
+        font: 14px/1.5 Arial, sans-serif;
+        }
+
+        body {
+            background: rgb(195, 239, 195);
+            padding: 0;
+            width: 920px;
+            margin: 0;
+        }
+        nav {
+            background: lightgreen;
+            margin: 0;
+            padding: 5px 10px;
+        }
+
+        #workspace {
+            margin: 0 10px;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid gray;
+            text-align: center;
+        }
+        .row-label {
+            display: table-cell;
+            text-align: right;
+        }
+        .row-input-label {
+            display: table-cell;
+        }
+        .row {
+            display: table-row;
+        }
+        input, label {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <button id="get-opt" onclick="getFunction()">GET</button>
+        <button id="post-opt" onclick="postFunction()">POST</button>
+    </nav>
+    <section>
+        <legend id="legend-title">Choose an option</legend>
+        <div id="workspace">
+            <div id="get-workspace" hidden>
+                <label for="input-cardNumber">Card Number:</label>
+                <input type="text" id="input-cardNumber">
+                <button id="get-button" onclick="searchStudent()">Search</button>
+                <table id="result-table" hidden>
+                    <tr>
+                        <th>Card Number</th>
+                        <th>Name</th>
+                        <th>Last Name</th>
+                        <th>Average Grade</th>
+                    </tr>
+                    <tr>
+                        <td id="result-card"></td>
+                        <td id="result-name"></td>
+                        <td id="result-lastName"></td>
+                        <td id="result-avgGrade"></td>
+                    </tr>
+                </table>
+                <p class="tempResponse"></p>
+            </div>
+
+            <div id="post-workspace" hidden>
+                <div class="row">
+                    <label class="row-label" for="input-newName">Name:</label>
+                    <input type="text" id="input-newName" class="row-input-label">
+                </div>
+                <div class="row">
+                    <label class="row-label" for="input-newLastName">Last Name:</label>
+                    <input type="text" id="input-newLastName" class="row-input-label">
+                </div>
+                <div class="row">
+                    <label class="row-label" for="input-newAvgGrade">Average Grade</label>
+                    <input type="text" id="input-newAvgGrade" class="row-input-label">
+                </div>
+                <button id="post-button" onclick="addStudent()">Save</button>
+                <p class="tempResponse"></p>
+            </div>
+        </div>
+    </section>
+
+    <script type="text/javascript">
+        function getFunction() {
+            $("#legend-title").text("Search for a student");
+            $("#post-workspace").hide()
+            $("#get-workspace").show()
+        };
+        function postFunction() {
+            $("#legend-title").text("Add or modify student");
+            $("#get-workspace").hide()
+            $("#post-workspace").show()
+        }
+
+        function searchStudent() {
+            $(".tempResponse").text("");
+            $("#result-table").hide();
+            var cardNumber = $("#input-cardNumber").val();
+            $.get("http://127.0.0.1:8080/?cardNumber="+cardNumber, function(data) {
+                result = data.split(";");
+                console.log(result);
+                $("#result-card").text(result[0]);
+                $("#result-name").text(result[1]);
+                $("#result-lastName").text(result[2]);
+                $("#result-avgGrade").text(result[3]);
+                $("#result-table").show();
+            }).fail(function(err) {
+                $(".tempResponse").text(err.responseText);
+            });
+        }
+
+        function addStudent() {
+            var name = $("#input-newName").val();
+            var lastName = $("#input-newLastName").val();
+            var avgGrade = $("#input-newAvgGrade").val();
+            $.post("http://127.0.0.1:8080/?name=" + name + "&lastName=" + lastName + "&avgGrade=" +avgGrade, function(data) {
+                $(".tempResponse").text("")
+                console.log(data);
+                $(".tempResponse").text("Student added")
+            });
+        }
+
+    </script>
+    <script
+    src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+    crossorigin="anonymous"></script>
+</body>
+</html>
